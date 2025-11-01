@@ -6,17 +6,19 @@ import { useRouter } from 'next/navigation';
 import { getSession, signIn } from 'next-auth/react';
 import {
   Box,
+  Button as ChakraButton,
   Card,
   Container,
   Field,
   Heading,
   HStack,
   Input,
+  InputGroup,
   Link,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { LuArrowRight } from 'react-icons/lu';
+import { LuArrowRight, LuEye, LuEyeOff } from 'react-icons/lu';
 
 import { Button } from '@/components/ui/button';
 import { useColorModeValue } from '@/components/ui/color-mode';
@@ -32,6 +34,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,6 +42,20 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
+      const validateResponse = await fetch('/api/auth/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const validateData = await validateResponse.json();
+
+      if (!validateData.valid) {
+        setError(validateData.error);
+        setIsLoading(false);
+        return;
+      }
+
       const result = await signIn('credentials', {
         redirect: false,
         email,
@@ -130,15 +147,28 @@ const LoginPage = () => {
                       <Field.Label fontSize="sm" textTransform="uppercase" letterSpacing="wide" fontWeight="medium">
                         Password
                       </Field.Label>
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        size="lg"
-                        _focus={{ borderColor: accentColor, boxShadow: `0 0 0 1px ${accentColor}` }}
-                      />
+                      <InputGroup
+                        endElement={
+                          <ChakraButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <LuEyeOff /> : <LuEye />}
+                          </ChakraButton>
+                        }
+                      >
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(event) => setPassword(event.target.value)}
+                          placeholder="Enter your password"
+                          required
+                          size="lg"
+                          _focus={{ borderColor: accentColor, boxShadow: `0 0 0 1px ${accentColor}` }}
+                        />
+                      </InputGroup>
                     </Field.Root>
 
                     <Stack direction="row" justify="flex-end">
