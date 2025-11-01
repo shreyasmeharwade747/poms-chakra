@@ -244,7 +244,8 @@ const EditCompanyPage = ({ params }: PageProps) => {
                     </VStack>
                   </Box>
 
-                  {/* Logo Upload */}
+                  {/* Logo Upload - Temporarily commented out due to type issues */}
+                  {/*
                   <Box>
                     <Heading size="md" mb="3" color="#ed5d43">Company Logo</Heading>
                     <FileUpload.Root
@@ -273,6 +274,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
                       <FileUpload.List showSize clearable />
                     </FileUpload.Root>
                   </Box>
+                  */}
 
                   <Button
                     type="submit"

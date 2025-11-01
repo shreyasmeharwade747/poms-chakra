@@ -29,7 +29,7 @@ interface UserItem {
   id: string;
   name: string;
   email: string;
-  role: 'SUPER_ADMIN' | 'USER' | 'EMPLOYEE';
+  role: 'SUPER_ADMIN' | 'USER';
   isActive: boolean;
   createdAt: string;
 }
@@ -51,13 +51,11 @@ interface UsersResponse {
 const roleLabelMap: Record<UserItem['role'], string> = {
   SUPER_ADMIN: 'Super Admin',
   USER: 'User',
-  EMPLOYEE: 'Employee',
 };
 
 const roleColorMap: Record<UserItem['role'], string> = {
   SUPER_ADMIN: '#ed5d43',
   USER: 'blue.500',
-  EMPLOYEE: 'purple.300',
 };
 
 const formatter = new Intl.DateTimeFormat('en-IN', {

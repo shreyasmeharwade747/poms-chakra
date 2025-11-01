@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; supplierId: string } }
+  { params }: { params: Promise<{ id: string; supplierId: string }> }
 ) {
   const session = await auth();
 
@@ -12,9 +12,10 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const { id, supplierId } = await params;
+
   try {
-    const companyId = params.id;
-    const supplierId = params.supplierId;
+    const companyId = id;
 
     // Verify the company belongs to the user
     const company = await prisma.company.findFirst({
@@ -59,7 +60,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; supplierId: string } }
+  { params }: { params: Promise<{ id: string; supplierId: string }> }
 ) {
   const session = await auth();
 
@@ -67,9 +68,10 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const { id, supplierId } = await params;
+
   try {
-    const companyId = params.id;
-    const supplierId = params.supplierId;
+    const companyId = id;
     const body = await request.json();
 
     // Verify the company belongs to the user

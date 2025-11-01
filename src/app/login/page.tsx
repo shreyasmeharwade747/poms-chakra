@@ -10,6 +10,7 @@ import {
   Container,
   Field,
   Heading,
+  HStack,
   Input,
   Link,
   Stack,
@@ -159,10 +160,12 @@ const LoginPage = () => {
                     bg={accentColor}
                     color="white"
                     size="lg"
-                    rightIcon={<LuArrowRight />}
                     _hover={{ bg: '#d64c35' }}
                   >
-                    Sign in
+                    <HStack gap="2">
+                      <Text>Sign in</Text>
+                      <LuArrowRight />
+                    </HStack>
                   </Button>
                 </Stack>
               </form>

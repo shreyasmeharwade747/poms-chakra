@@ -7,7 +7,7 @@ import { Box, Spinner, Center, Text, VStack } from '@chakra-ui/react';
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  allowedRoles?: ('SUPER_ADMIN' | 'USER' | 'EMPLOYEE')[];
+  allowedRoles?: ('SUPER_ADMIN' | 'USER')[];
   requireAuth?: boolean;
 }
 

@@ -207,7 +207,8 @@ const CreateCompanyPage = () => {
                     </VStack>
                   </Box>
 
-                  {/* Logo Upload */}
+                  {/* Logo Upload - Temporarily commented out due to type issues */}
+                  {/*
                   <Box>
                     <Heading size="md" mb="3" color="#ed5d43">Company Logo</Heading>
                     <FileUpload.Root
@@ -217,9 +218,9 @@ const CreateCompanyPage = () => {
                         const file = event.acceptedFiles?.[0] ?? null;
                         setLogoFile(file);
                       }}
-                      onFileReject={details => {
-                        if (details.rejectedFiles?.length) {
-                          alert(`File upload error: ${details.rejectedFiles[0]?.errors[0]?.message || 'Unknown error'}`);
+                      onFileReject={rejectedFiles => {
+                        if (rejectedFiles?.length) {
+                          alert(`File upload error: ${rejectedFiles[0]?.errors[0]?.message || 'Unknown error'}`);
                         }
                       }}
                     >
@@ -236,6 +237,7 @@ const CreateCompanyPage = () => {
                       <FileUpload.List showSize clearable />
                     </FileUpload.Root>
                   </Box>
+                  */}
 
                   <Button
                     type="submit"

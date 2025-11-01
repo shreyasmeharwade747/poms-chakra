@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-type UserRole = 'SUPER_ADMIN' | 'USER' | 'EMPLOYEE';
+type UserRole = 'SUPER_ADMIN' | 'USER';
 
 interface CreateUserPayload {
   name?: string;
@@ -114,7 +114,7 @@ function parseCreatePayload(body: unknown): asserts body is Required<CreateUserP
     throw new Error('INVALID_PASSWORD');
   }
 
-  if (!role || !['SUPER_ADMIN', 'USER', 'EMPLOYEE'].includes(role)) {
+  if (!role || !['SUPER_ADMIN', 'USER'].includes(role)) {
     throw new Error('INVALID_ROLE');
   }
 
@@ -141,7 +141,7 @@ function mapCreateError(error: unknown) {
         status: 422,
       };
     case 'INVALID_ROLE':
-      return { message: 'Role must be SUPER_ADMIN, USER, or EMPLOYEE', status: 422 };
+      return { message: 'Role must be SUPER_ADMIN or USER', status: 422 };
     case 'INVALID_STATUS':
       return { message: 'isActive must be a boolean', status: 422 };
     case 'P2002':

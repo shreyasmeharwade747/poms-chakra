@@ -105,10 +105,20 @@ const EditSupplierPage = () => {
     );
   }
 
+  const supplierFormData = supplier ? {
+    name: supplier.name,
+    gstin: supplier.gstin || undefined,
+    phone: supplier.phone || undefined,
+    email: supplier.email || undefined,
+    address: supplier.address || undefined,
+    stateCode: supplier.stateCode || undefined,
+    isRegisteredGst: supplier.isRegisteredGst,
+  } : undefined;
+
   return (
     <Box p="6" maxW="7xl" mx="auto">
       <SupplierForm
-        initialData={supplier}
+        initialData={supplierFormData}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}

@@ -10,7 +10,7 @@ declare module "next-auth" {
     name: string;
     email: string;
     password: string;
-    role: "SUPER_ADMIN" | "USER" | "EMPLOYEE";
+    role: "SUPER_ADMIN" | "USER";
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -19,7 +19,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: "SUPER_ADMIN" | "USER" | "EMPLOYEE";
+      role: "SUPER_ADMIN" | "USER";
     } & DefaultSession["user"];
   }
 }
@@ -37,10 +37,10 @@ export const authConfig = {
       },
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
-          where: { email: credentials?.email },
+          where: { email: credentials?.email as string },
         });
         if (!user) throw new Error("User not found");
-        const valid = await compare(credentials!.password, user.password);
+        const valid = await compare(credentials!.password as string, user.password);
         if (!valid) throw new Error("Invalid password");
         return user;
       },
@@ -58,7 +58,7 @@ export const authConfig = {
     async session({ session, token }: { session: Session; token: JWT }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.role = token.role as "SUPER_ADMIN" | "USER" | "EMPLOYEE";
+        session.user.role = token.role as "SUPER_ADMIN" | "USER";
       }
       return session;
     },
