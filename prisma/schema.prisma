@@ -1,0 +1,147 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================
+// ENUMS
+// ==========================
+enum Role {
+  SUPER_ADMIN
+  USER
+}
+
+enum GstType {
+  INTRA_STATE
+  INTER_STATE
+}
+
+// ==========================
+// MODELS
+// ==========================
+
+// 👤 Authentication + RBAC
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  password     String
+  role         Role        @default(USER)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  companies    Company[]
+}
+
+// 🏢 Company - a business entity (GSTIN, PAN, etc.)
+model Company {
+  id           String         @id @default(cuid())
+  userId       String
+  name         String
+  gstin        String?         @unique
+  pan          String?
+  address      String?
+  stateCode    String?
+  email        String?
+  phone        String?
+  logoUrl      String?
+  gstType      GstType         @default(INTRA_STATE)
+
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  user         User           @relation(fields: [userId], references: [id])
+  parties      Party[]
+  items        Item[]
+  purchaseOrders PurchaseOrder[]
+}
+
+// 🧾 Supplier / Vendor
+model Party {
+  id          String      @id @default(cuid())
+  companyId   String
+  name        String
+  gstin       String?
+  phone       String?
+  email       String?
+  address     String?
+  stateCode   String?
+  isRegisteredGst Boolean @default(true)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  company     Company     @relation(fields: [companyId], references: [id])
+  items       Item[]
+  purchaseOrders PurchaseOrder[]
+}
+
+// 📦 Item Master
+model Item {
+  id          String     @id @default(cuid())
+  companyId   String
+  partyId     String?
+  name        String
+  description String?
+  sku         String?
+  unit        String?     // e.g. 'pcs', 'kg'
+  hsnCode     String?
+  basePrice   Decimal     @db.Decimal(10,2)
+  gstRate     Decimal     @db.Decimal(5,2) // e.g. 18.00
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  company     Company     @relation(fields: [companyId], references: [id])
+  party       Party?      @relation(fields: [partyId], references: [id])
+  orderItems  PurchaseOrderItem[]
+}
+
+// 🧾 Purchase Order Header
+model PurchaseOrder {
+  id            String     @id @default(cuid())
+  companyId     String
+  partyId       String
+  poNumber      String     @unique
+  date          DateTime   @default(now())
+  dueDate       DateTime?
+  status        String     @default("Draft")
+  notes         String?
+  freightCharge Decimal?   @db.Decimal(10,2)
+  otherCharges  Decimal?   @db.Decimal(10,2)
+  totalBeforeTax Decimal   @db.Decimal(10,2)
+  totalGst       Decimal   @db.Decimal(10,2)
+  totalAfterTax  Decimal   @db.Decimal(10,2)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  company       Company    @relation(fields: [companyId], references: [id])
+  party         Party      @relation(fields: [partyId], references: [id])
+  items         PurchaseOrderItem[]
+}
+
+// 📦 Line Items inside Purchase Order
+model PurchaseOrderItem {
+  id            String     @id @default(cuid())
+  purchaseOrderId String
+  itemId        String
+  quantity      Decimal     @db.Decimal(10,2)
+  unitPrice     Decimal     @db.Decimal(10,2)
+  gstRate       Decimal     @db.Decimal(5,2)
+  cgst          Decimal?    @db.Decimal(10,2)
+  sgst          Decimal?    @db.Decimal(10,2)
+  igst          Decimal?    @db.Decimal(10,2)
+  total         Decimal     @db.Decimal(10,2)
+
+  item          Item        @relation(fields: [itemId], references: [id])
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+}
