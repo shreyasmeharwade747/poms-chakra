@@ -24,13 +24,24 @@ import { Button } from '@/components/ui/button';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { ColorModeButton } from '@/components/ui/color-mode';
 
+const useHydratedColorModeValue = <T,>(lightValue: T, darkValue: T) => {
+  const value = useColorModeValue(lightValue, darkValue);
+  const [hydratedValue, setHydratedValue] = useState(lightValue);
+
+  useEffect(() => {
+    setHydratedValue(value);
+  }, [value]);
+
+  return hydratedValue;
+};
+
 const LoginPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const accentColor = '#ed5d43';
-  const cardBg = useColorModeValue('rgba(255,255,255,0.82)', 'rgba(12,12,12,0.7)');
-  const cardBorder = useColorModeValue('blackAlpha.100', 'whiteAlpha.100');
-  const mutedText = useColorModeValue('gray.600', 'gray.400');
+  const cardBg = useHydratedColorModeValue('rgba(255,255,255,0.82)', 'rgba(12,12,12,0.7)');
+  const cardBorder = useHydratedColorModeValue('blackAlpha.100', 'whiteAlpha.100');
+  const mutedText = useHydratedColorModeValue('gray.600', 'gray.400');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +57,7 @@ const LoginPage = () => {
     const destination = role === 'SUPER_ADMIN' ? '/admin' : '/dashboard';
 
     router.replace(destination);
-  }, [router, session?.user, status]);
+  }, [router, status, (session?.user as any)?.role]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
