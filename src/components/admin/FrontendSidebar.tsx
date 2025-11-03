@@ -1,7 +1,8 @@
 'use client';
 
-import { Box, Flex, HStack, Icon, Link, Separator, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, HStack, Icon, Separator, Text, VStack } from '@chakra-ui/react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   LuBuilding,
   LuLayoutDashboard,
@@ -85,11 +86,7 @@ export const FrontendSidebar = () => {
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link key={item.href} href={item.href}>
               <HStack
                 px="3"
                 py="2.5"
@@ -102,6 +99,7 @@ export const FrontendSidebar = () => {
                 fontWeight={active ? 'semibold' : 'medium'}
                 transition="all 0.2s ease"
                 _hover={{
+                  textDecoration: 'none',
                   bg: 'blackAlpha.50',
                   color: active ? '#ed5d43' : 'fg',
                 }}
@@ -122,11 +120,7 @@ export const FrontendSidebar = () => {
           {settingsItems.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link key={item.href} href={item.href}>
                 <HStack
                   px="3"
                   py="2.5"
@@ -139,6 +133,7 @@ export const FrontendSidebar = () => {
                   fontWeight={active ? 'semibold' : 'medium'}
                   transition="all 0.2s ease"
                   _hover={{
+                    textDecoration: 'none',
                     bg: 'blackAlpha.50',
                     color: active ? '#ed5d43' : 'fg',
                   }}

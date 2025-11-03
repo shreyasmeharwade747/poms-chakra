@@ -5,19 +5,13 @@ import {
   Box,
   Button,
   Card,
-  Field,
-  FileUpload,
   Flex,
   Heading,
-  Icon,
-  Input,
-  NativeSelect,
   Text,
-  Textarea,
   VStack,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { LuUpload, LuPencil } from 'react-icons/lu';
+import CompanyForm, { CompanyFormData } from '@/components/company/CompanyForm';
 
 type CompanyData = {
   name: string;
@@ -37,7 +31,6 @@ interface PageProps {
 
 const EditCompanyPage = ({ params }: PageProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
     gstin: '',
@@ -48,7 +41,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
     phone: '',
     gstType: 'INTRA_STATE',
   });
-  
+  const [initialData, setInitialData] = useState<Partial<CompanyData>>({});
   const router = useRouter();
 
   // Async params handling
@@ -67,7 +60,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
           const company = Array.isArray(data) ? data[0] : data;
           if (!company) throw new Error('Company not found');
           
-          setCompanyData({
+          const dataToSet = {
             name: company.name || '',
             gstin: company.gstin || '',
             pan: company.pan || '',
@@ -77,7 +70,9 @@ const EditCompanyPage = ({ params }: PageProps) => {
             phone: company.phone || '',
             gstType: company.gstType || 'INTRA_STATE',
             logoUrl: company.logoUrl
-          });
+          };
+          setCompanyData(dataToSet);
+          setInitialData(dataToSet);
         } catch (error) {
           alert(error instanceof Error ? error.message : 'Failed to load company');
           router.push('/companies');
@@ -88,8 +83,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
     fetchCompanyData();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: CompanyFormData) => {
     const resolvedParams = await params;
     const companyId = resolvedParams.id;
     
@@ -97,7 +91,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
     
     setIsSubmitting(true);
     const payload = {
-      ...companyData,
+      ...data,
       logoUrl: companyData.logoUrl || ''
     };
 
@@ -121,8 +115,8 @@ const EditCompanyPage = ({ params }: PageProps) => {
     }
   };
 
-  const handleInputChange = (field: keyof CompanyData, value: string) => {
-    setCompanyData({ ...companyData, [field]: value });
+  const handleFormChange = (data: CompanyFormData) => {
+    setCompanyData(data);
   };
 
   return (
@@ -139,159 +133,16 @@ const EditCompanyPage = ({ params }: PageProps) => {
 
         <Flex direction={{ base: 'column', md: 'row' }} gap="6" align="stretch">
           {/* Form Section */}
-          <Card.Root flex="1">
-            <Card.Body>
-              <form onSubmit={handleSubmit}>
-                <VStack align="stretch" gap="6">
-                  {/* Basic Info */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Basic Information</Heading>
-                    <VStack gap="3">
-                      <Field.Root required>
-                        <Field.Label>Company Name</Field.Label>
-                        <Input
-                          placeholder="Enter company name"
-                          size="lg"
-                          value={companyData.name}
-                          onChange={e => handleInputChange('name', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>Address</Field.Label>
-                        <Textarea
-                          placeholder="Office address"
-                          rows={4}
-                          value={companyData.address}
-                          onChange={e => handleInputChange('address', e.target.value)}
-                        />
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Tax Details */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Tax Details</Heading>
-                    <VStack gap="3">
-                      <Field.Root>
-                        <Field.Label>GSTIN</Field.Label>
-                        <Input
-                          placeholder="22AAAAA0000A1Z5"
-                          size="lg"
-                          value={companyData.gstin}
-                          onChange={e => handleInputChange('gstin', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>PAN</Field.Label>
-                        <Input
-                          placeholder="AAAAA0000A"
-                          size="lg"
-                          value={companyData.pan}
-                          onChange={e => handleInputChange('pan', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>GST Type</Field.Label>
-                        <NativeSelect.Root size="lg">
-                          <NativeSelect.Field
-                            value={companyData.gstType}
-                            onChange={e => handleInputChange('gstType', e.target.value)}
-                          >
-                            <option value="">Select GST Type</option>
-                            <option value="INTRA_STATE">Intra State</option>
-                            <option value="INTER_STATE">Inter State</option>
-                          </NativeSelect.Field>
-                          <NativeSelect.Indicator />
-                        </NativeSelect.Root>
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Contact Info */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Contact Information</Heading>
-                    <VStack gap="3">
-                      <Flex gap="4" direction={{ base: 'column', md: 'row' }}>
-                        <Field.Root flex="1">
-                          <Field.Label>State Code</Field.Label>
-                          <Input
-                            placeholder="MH"
-                            size="lg"
-                            value={companyData.stateCode}
-                            onChange={e => handleInputChange('stateCode', e.target.value)}
-                          />
-                        </Field.Root>
-                        <Field.Root flex="1">
-                          <Field.Label>Phone</Field.Label>
-                          <Input
-                            placeholder="+91-9876543210"
-                            size="lg"
-                            value={companyData.phone}
-                            onChange={e => handleInputChange('phone', e.target.value)}
-                          />
-                        </Field.Root>
-                      </Flex>
-                      <Field.Root>
-                        <Field.Label>Email</Field.Label>
-                        <Input
-                          type="email"
-                          placeholder="company@email.com"
-                          size="lg"
-                          value={companyData.email}
-                          onChange={e => handleInputChange('email', e.target.value)}
-                        />
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Logo Upload - Temporarily commented out due to type issues */}
-                  {/*
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Company Logo</Heading>
-                    <FileUpload.Root
-                      accept="image/*"
-                      maxFiles={1}
-                      onFileChange={event => {
-                        const file = event.acceptedFiles?.[0] ?? null;
-                        setLogoFile(file);
-                      }}
-                      onFileReject={details => {
-                        if (details.rejectedFiles?.length) {
-                          alert(`File upload error: ${details.rejectedFiles[0]?.errors[0]?.message || 'Unknown error'}`);
-                        }
-                      }}
-                    >
-                      <FileUpload.HiddenInput />
-                      <FileUpload.Dropzone>
-                        <Icon fontSize="xl" color="fg.muted">
-                          <LuUpload />
-                        </Icon>
-                        <FileUpload.DropzoneContent>
-                          <Text>Drop logo here or click to browse</Text>
-                          <Text fontSize="sm" color="fg.muted">PNG, JPG up to 5MB</Text>
-                        </FileUpload.DropzoneContent>
-                      </FileUpload.Dropzone>
-                      <FileUpload.List showSize clearable />
-                    </FileUpload.Root>
-                  </Box>
-                  */}
-
-                  <Button
-                    type="submit"
-                    colorScheme="orange"
-                    size="lg"
-                    justifyContent="center"
-                    loading={isSubmitting}
-                    loadingText="Updating"
-                    _hover={{ transform: 'translateY(-1px)', shadow: 'md' }}
-                    transition="all 0.2s"
-                  >
-                    Update Company
-                  </Button>
-                </VStack>
-              </form>
-            </Card.Body>
-          </Card.Root>
+          <Box flex="1">
+            <CompanyForm
+              initialData={initialData}
+              onSubmit={handleSubmit}
+              onChange={handleFormChange}
+              isSubmitting={isSubmitting}
+              submitButtonText="Update Company"
+              title="Edit Company Details"
+            />
+          </Box>
 
           {/* Summary Section */}
           <Card.Root flexShrink={0} w={{ base: 'full', md: '400px' }}>
@@ -334,7 +185,7 @@ const EditCompanyPage = ({ params }: PageProps) => {
                 </Box>
                 <Box>
                   <Text fontWeight="semibold" mb="2">Logo</Text>
-                  <Text>{logoFile?.name || companyData.logoUrl || 'Not uploaded'}</Text>
+                  <Text>{companyData.logoUrl || 'Not uploaded'}</Text>
                 </Box>
               </VStack>
             </Card.Body>

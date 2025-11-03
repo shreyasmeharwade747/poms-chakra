@@ -5,19 +5,13 @@ import {
   Box,
   Button,
   Card,
-  Field,
-  FileUpload,
   Flex,
   Heading,
-  Icon,
-  Input,
-  NativeSelect,
   Text,
-  Textarea,
   VStack,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { LuUpload } from 'react-icons/lu';
+import CompanyForm, { CompanyFormData } from '@/components/company/CompanyForm';
 
 type CompanyData = {
   name: string;
@@ -32,7 +26,6 @@ type CompanyData = {
 
 const CreateCompanyPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
     gstin: '',
@@ -45,18 +38,17 @@ const CreateCompanyPage = () => {
   });
   const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (data: CompanyFormData) => {
     setIsSubmitting(true);
     const payload = {
-      name: companyData.name.trim(),
-      gstin: companyData.gstin.trim() || undefined,
-      pan: companyData.pan.trim() || undefined,
-      address: companyData.address.trim() || undefined,
-      stateCode: companyData.stateCode.trim() || undefined,
-      email: companyData.email.trim() || undefined,
-      phone: companyData.phone.trim() || undefined,
-      gstType: companyData.gstType,
+      name: data.name.trim(),
+      gstin: data.gstin.trim() || undefined,
+      pan: data.pan.trim() || undefined,
+      address: data.address.trim() || undefined,
+      stateCode: data.stateCode.trim() || undefined,
+      email: data.email.trim() || undefined,
+      phone: data.phone.trim() || undefined,
+      gstType: data.gstType,
       logoUrl: undefined, // TODO: upload logoFile and supply resulting URL
     };
 
@@ -84,8 +76,8 @@ const CreateCompanyPage = () => {
     }
   };
 
-  const handleInputChange = (field: keyof CompanyData, value: string) => {
-    setCompanyData(prev => ({ ...prev, [field]: value }));
+  const handleFormChange = (data: CompanyFormData) => {
+    setCompanyData(data);
   };
 
   return (
@@ -102,159 +94,14 @@ const CreateCompanyPage = () => {
 
         <Flex direction={{ base: 'column', md: 'row' }} gap="6" align="stretch">
           {/* Form Section */}
-          <Card.Root flex="1">
-            <Card.Body>
-              <form onSubmit={handleSubmit}>
-                <VStack align="stretch" gap="6">
-                  {/* Basic Info */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Basic Information</Heading>
-                    <VStack gap="3">
-                      <Field.Root required>
-                        <Field.Label>Company Name</Field.Label>
-                        <Input
-                          placeholder="Enter company name"
-                          size="lg"
-                          value={companyData.name}
-                          onChange={e => handleInputChange('name', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>Address</Field.Label>
-                        <Textarea
-                          placeholder="Office address"
-                          rows={4}
-                          value={companyData.address}
-                          onChange={e => handleInputChange('address', e.target.value)}
-                        />
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Tax Details */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Tax Details</Heading>
-                    <VStack gap="3">
-                      <Field.Root>
-                        <Field.Label>GSTIN</Field.Label>
-                        <Input
-                          placeholder="22AAAAA0000A1Z5"
-                          size="lg"
-                          value={companyData.gstin}
-                          onChange={e => handleInputChange('gstin', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>PAN</Field.Label>
-                        <Input
-                          placeholder="AAAAA0000A"
-                          size="lg"
-                          value={companyData.pan}
-                          onChange={e => handleInputChange('pan', e.target.value)}
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label>GST Type</Field.Label>
-                        <NativeSelect.Root size="lg">
-                          <NativeSelect.Field
-                            value={companyData.gstType}
-                            onChange={e => handleInputChange('gstType', e.target.value)}
-                          >
-                            <option value="">Select GST Type</option>
-                            <option value="INTRA_STATE">Intra State</option>
-                            <option value="INTER_STATE">Inter State</option>
-                          </NativeSelect.Field>
-                          <NativeSelect.Indicator />
-                        </NativeSelect.Root>
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Contact Info */}
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Contact Information</Heading>
-                    <VStack gap="3">
-                      <Flex gap="4" direction={{ base: 'column', md: 'row' }}>
-                        <Field.Root flex="1">
-                          <Field.Label>State Code</Field.Label>
-                          <Input
-                            placeholder="MH"
-                            size="lg"
-                            value={companyData.stateCode}
-                            onChange={e => handleInputChange('stateCode', e.target.value)}
-                          />
-                        </Field.Root>
-                        <Field.Root flex="1">
-                          <Field.Label>Phone</Field.Label>
-                          <Input
-                            placeholder="+91-9876543210"
-                            size="lg"
-                            value={companyData.phone}
-                            onChange={e => handleInputChange('phone', e.target.value)}
-                          />
-                        </Field.Root>
-                      </Flex>
-                      <Field.Root>
-                        <Field.Label>Email</Field.Label>
-                        <Input
-                          type="email"
-                          placeholder="company@email.com"
-                          size="lg"
-                          value={companyData.email}
-                          onChange={e => handleInputChange('email', e.target.value)}
-                        />
-                      </Field.Root>
-                    </VStack>
-                  </Box>
-
-                  {/* Logo Upload - Temporarily commented out due to type issues */}
-                  {/*
-                  <Box>
-                    <Heading size="md" mb="3" color="#ed5d43">Company Logo</Heading>
-                    <FileUpload.Root
-                      accept="image/*"
-                      maxFiles={1}
-                      onFileChange={event => {
-                        const file = event.acceptedFiles?.[0] ?? null;
-                        setLogoFile(file);
-                      }}
-                      onFileReject={rejectedFiles => {
-                        if (rejectedFiles?.length) {
-                          alert(`File upload error: ${rejectedFiles[0]?.errors[0]?.message || 'Unknown error'}`);
-                        }
-                      }}
-                    >
-                      <FileUpload.HiddenInput />
-                      <FileUpload.Dropzone>
-                        <Icon fontSize="xl" color="fg.muted">
-                          <LuUpload />
-                        </Icon>
-                        <FileUpload.DropzoneContent>
-                          <Text>Drop logo here or click to browse</Text>
-                          <Text fontSize="sm" color="fg.muted">PNG, JPG up to 5MB</Text>
-                        </FileUpload.DropzoneContent>
-                      </FileUpload.Dropzone>
-                      <FileUpload.List showSize clearable />
-                    </FileUpload.Root>
-                  </Box>
-                  */}
-
-                  <Button
-                    type="submit"
-                    colorScheme="orange"
-                    size="lg"
-                    justifyContent="center"
-                    loading={isSubmitting}
-                    loadingText="Creating"
-                    _hover={{ transform: 'translateY(-1px)', shadow: 'md' }}
-                    transition="all 0.2s"
-                  >
-                    Submit
-                  </Button>
-                </VStack>
-              </form>
-            </Card.Body>
-          </Card.Root>
+          <Box flex="1">
+            <CompanyForm
+              onSubmit={handleSubmit}
+              onChange={handleFormChange}
+              isSubmitting={isSubmitting}
+              submitButtonText="Submit"
+            />
+          </Box>
 
           {/* Summary Section */}
           <Card.Root flexShrink={0} w={{ base: 'full', md: '400px' }}>
@@ -297,7 +144,7 @@ const CreateCompanyPage = () => {
                 </Box>
                 <Box>
                   <Text fontWeight="semibold" mb="2">Logo</Text>
-                  <Text>{logoFile?.name ?? 'Not uploaded'}</Text>
+                  <Text>Not uploaded</Text>
                 </Box>
               </VStack>
             </Card.Body>
