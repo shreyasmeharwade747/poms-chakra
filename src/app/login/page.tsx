@@ -1,9 +1,9 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getSession, signIn } from 'next-auth/react';
+import { getSession, signIn, useSession } from 'next-auth/react';
 import {
   Box,
   Button as ChakraButton,
@@ -26,6 +26,7 @@ import { ColorModeButton } from '@/components/ui/color-mode';
 
 const LoginPage = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const accentColor = '#ed5d43';
   const cardBg = useColorModeValue('rgba(255,255,255,0.82)', 'rgba(12,12,12,0.7)');
   const cardBorder = useColorModeValue('blackAlpha.100', 'whiteAlpha.100');
@@ -35,6 +36,17 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (status !== 'authenticated') {
+      return;
+    }
+
+    const role = (session?.user as any)?.role;
+    const destination = role === 'SUPER_ADMIN' ? '/admin' : '/dashboard';
+
+    router.replace(destination);
+  }, [router, session?.user, status]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
