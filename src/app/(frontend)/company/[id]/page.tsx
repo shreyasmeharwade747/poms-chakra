@@ -92,9 +92,8 @@ const CompanyDashboardPage = () => {
                 _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
                 transition="all 0.2s"
                 cursor="pointer"
-                bg="white"
                 border="1px"
-                borderColor="gray.200"
+                borderColor="border"
               >
                 <Card.Body>
                   <VStack gap="3">
@@ -112,9 +111,8 @@ const CompanyDashboardPage = () => {
                 _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
                 transition="all 0.2s"
                 cursor="pointer"
-                bg="white"
                 border="1px"
-                borderColor="gray.200"
+                borderColor="border"
               >
                 <Card.Body>
                   <VStack gap="3">
