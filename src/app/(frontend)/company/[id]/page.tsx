@@ -7,9 +7,11 @@ import {
   Heading,
   Icon,
   VStack,
+  Card,
+  Grid,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { LuPlus } from 'react-icons/lu';
+import { LuPlus, LuPackage, LuTruck } from 'react-icons/lu';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
@@ -81,12 +83,51 @@ const CompanyDashboardPage = () => {
           </Button>
         </Flex>
 
-        {/* Placeholder for future sections */}
+        {/* Management Links */}
         <Box>
-          <Heading size="md" mb="4">Dashboard Content</Heading>
-          <Box p="4" border="1px" borderColor="gray.200" borderRadius="md">
-            Company dashboard sections will go here
-          </Box>
+          <Heading size="md" mb="4">Quick Actions</Heading>
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="4">
+            <Link href={`/company/${companyId}/items`}>
+              <Card.Root
+                _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+                cursor="pointer"
+                bg="white"
+                border="1px"
+                borderColor="gray.200"
+              >
+                <Card.Body>
+                  <VStack gap="3">
+                    <Icon as={LuPackage} boxSize="8" color="#ed5d43" />
+                    <Heading size="md">Manage Items</Heading>
+                    <Card.Description textAlign="center">
+                      Add, edit, and organize your inventory items
+                    </Card.Description>
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+            </Link>
+            <Link href={`/company/${companyId}/suppliers`}>
+              <Card.Root
+                _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+                cursor="pointer"
+                bg="white"
+                border="1px"
+                borderColor="gray.200"
+              >
+                <Card.Body>
+                  <VStack gap="3">
+                    <Icon as={LuTruck} boxSize="8" color="#ed5d43" />
+                    <Heading size="md">Manage Suppliers</Heading>
+                    <Card.Description textAlign="center">
+                      View and manage your supplier relationships
+                    </Card.Description>
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+            </Link>
+          </Grid>
         </Box>
       </VStack>
     </Box>

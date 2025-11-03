@@ -3,24 +3,24 @@
 import { Box, Flex, HStack, Icon, Link, Separator, Text, VStack } from '@chakra-ui/react';
 import { usePathname } from 'next/navigation';
 import {
-  LuLayoutDashboard,
-  LuSettings,
-  LuUsers,
-} from 'react-icons/lu';
+  FiLayout,
+  FiSettings,
+  FiUsers,
+} from 'react-icons/fi';
 
 interface NavItem {
   label: string;
   href: string;
-  icon: typeof LuLayoutDashboard;
+  icon: typeof FiLayout;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: LuLayoutDashboard },
-  { label: 'User Management', href: '/user-management', icon: LuUsers },
+  { label: 'Dashboard', href: '/admin', icon: FiLayout },
+  { label: 'User Management', href: '/user-management', icon: FiUsers },
 ];
 
 const settingsItems: NavItem[] = [
-  { label: 'Settings', href: '/admin/settings', icon: LuSettings },
+  { label: 'Settings', href: '/admin/settings', icon: FiSettings },
 ];
 
 export const AdminSidebar = () => {

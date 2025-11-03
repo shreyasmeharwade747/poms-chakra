@@ -47,7 +47,7 @@ const serializeItem = (item: ItemRecord) => ({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; itemId: string }> }
 ) {
   const session = await auth();
 
@@ -55,35 +55,37 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id: companyId, itemId } = await params;
 
   try {
-    const company = await ensureCompanyOwnership(id, session.user.id);
+    const company = await ensureCompanyOwnership(companyId, session.user.id);
 
     if (!company) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 });
     }
 
-    const items = await prisma.item.findMany({
+    const item = await prisma.item.findFirst({
       where: {
-        companyId: id,
+        id: itemId,
+        companyId,
       },
       select: itemSelect,
-      orderBy: {
-        createdAt: 'desc',
-      },
     });
 
-    return NextResponse.json({ data: items.map(serializeItem) });
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: serializeItem(item) });
   } catch (error) {
-    console.error('[GET /api/company/[id]/items] Failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch items' }, { status: 500 });
+    console.error('[GET /api/company/[id]/items/[itemId]] Failed:', error);
+    return NextResponse.json({ error: 'Failed to fetch item' }, { status: 500 });
   }
 }
 
-export async function POST(
+export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; itemId: string }> }
 ) {
   const session = await auth();
 
@@ -91,14 +93,26 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id: companyId, itemId } = await params;
   const body = await request.json();
 
   try {
-    const company = await ensureCompanyOwnership(id, session.user.id);
+    const company = await ensureCompanyOwnership(companyId, session.user.id);
 
     if (!company) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+    }
+
+    const existingItem = await prisma.item.findFirst({
+      where: {
+        id: itemId,
+        companyId,
+      },
+      select: { id: true },
+    });
+
+    if (!existingItem) {
+      return NextResponse.json({ error: 'Item not found for this company' }, { status: 404 });
     }
 
     if (!body.partyId) {
@@ -108,7 +122,7 @@ export async function POST(
     const supplier = await prisma.party.findFirst({
       where: {
         id: body.partyId,
-        companyId: id,
+        companyId,
       },
       select: { id: true },
     });
@@ -121,8 +135,11 @@ export async function POST(
       return NextResponse.json({ error: 'Item name is required' }, { status: 400 });
     }
 
-    const basePrice = Number.parseFloat(normaliseDecimal(body.basePrice) ?? '');
-    const gstRate = Number.parseFloat(normaliseDecimal(body.gstRate) ?? '');
+    const basePriceNormalised = normaliseDecimal(body.basePrice);
+    const gstRateNormalised = normaliseDecimal(body.gstRate);
+
+    const basePrice = Number.parseFloat(basePriceNormalised ?? '');
+    const gstRate = Number.parseFloat(gstRateNormalised ?? '');
 
     if (Number.isNaN(basePrice) || basePrice < 0) {
       return NextResponse.json({ error: 'Base price must be a non-negative number' }, { status: 400 });
@@ -135,9 +152,9 @@ export async function POST(
     const basePriceDecimal = new Prisma.Decimal(basePrice.toFixed(2));
     const gstRateDecimal = new Prisma.Decimal(gstRate.toFixed(2));
 
-    const item = await prisma.item.create({
+    const updatedItem = await prisma.item.update({
+      where: { id: itemId },
       data: {
-        companyId: id,
         partyId: body.partyId,
         name: body.name.trim(),
         description: body.description?.trim() || null,
@@ -150,9 +167,9 @@ export async function POST(
       select: itemSelect,
     });
 
-    return NextResponse.json({ data: serializeItem(item) }, { status: 201 });
+    return NextResponse.json({ data: serializeItem(updatedItem) });
   } catch (error) {
-    console.error('[POST /api/company/[id]/items] Failed:', error);
-    return NextResponse.json({ error: 'Failed to create item' }, { status: 500 });
+    console.error('[PATCH /api/company/[id]/items/[itemId]] Failed:', error);
+    return NextResponse.json({ error: 'Failed to update item' }, { status: 500 });
   }
 }

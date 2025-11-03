@@ -35,7 +35,7 @@ export default function FrontendLayout({ children }: FrontendLayoutProps) {
         placement="start"
       >
         <DrawerBackdrop />
-        <DrawerContent>
+        <DrawerContent position="fixed" top="0" left="0" h="full" w="64" zIndex="overlay">
           <DrawerBody p="0">
             <FrontendSidebar />
           </DrawerBody>

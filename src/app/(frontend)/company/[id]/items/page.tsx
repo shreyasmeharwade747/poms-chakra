@@ -79,8 +79,8 @@ const ItemsPage = () => {
           </Button>
         </Flex>
 
-        <Box border="1px" borderColor="gray.200" borderRadius="md" overflow="hidden">
-          <Table.Root>
+        <Box border="1px" borderColor="gray.200" borderRadius="md" overflowX="auto">
+          <Table.Root minWidth="max-content">
             <Table.Header>
               <Table.Row>
                 <Table.ColumnHeader>Name</Table.ColumnHeader>

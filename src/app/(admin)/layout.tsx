@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           placement="start"
         >
           <DrawerBackdrop />
-          <DrawerContent>
+          <DrawerContent position="fixed" top="0" left="0" h="full" w="64" zIndex="overlay">
             <DrawerBody p="0">
               <AdminSidebar />
             </DrawerBody>
